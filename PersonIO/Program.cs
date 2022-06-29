@@ -25,13 +25,12 @@ namespace PersonIO
         }
         public void Create(Person person)
         {
-            using (FileStream fstream = new FileStream(path, FileMode.Append))
+            using (StreamWriter writer = new StreamWriter(path, true))
             {
-                byte[] buffer = Encoding.Default.GetBytes(person.Id.ToString() + "\n"
+                writer.WriteLineAsync(person.Id.ToString() + "\n"
                     + person.Age.ToString() + "\n"
                     + person.LastName + "\n"
-                    + person.FirstName + "\n");
-                fstream.Write(buffer, 0, buffer.Length);
+                    + person.FirstName);
             }
         }
         public List<Person> ConvertToPerson(string[] persons)
@@ -39,32 +38,23 @@ namespace PersonIO
             List<Person> people = new List<Person>();
             for (int i = 0; i < persons.Length; i = i + 4)
             {
-                try
+                people.Add(new Person()
                 {
-                    people.Add(new Person()
-                    {
-                        Id = Guid.Parse(persons[i]),
-                        Age = Convert.ToInt16(persons[i + 1]),
-                        LastName = persons[i + 2],
-                        FirstName = persons[i + 3]
-                    });
-                }
-                catch
-                {
-
-                }
+                    Id = Guid.Parse(persons[i]),
+                    Age = Convert.ToInt16(persons[i + 1]),
+                    LastName = persons[i + 2],
+                    FirstName = persons[i + 3]
+                });
             }
             return people;
         }
         public string[] Read()
         {
             string[] persons;
-            using (FileStream fstream = File.OpenRead(path))
+            using (StreamReader reader = new StreamReader(path))
             {
-                byte[] buffer = new byte[fstream.Length];
-                fstream.Read(buffer, 0, buffer.Length);
-                string textFromFile = Encoding.Default.GetString(buffer);
-                persons = textFromFile.Split('\n');
+                string textFromFile = reader.ReadToEnd();
+                persons = textFromFile.TrimEnd('\n').Split('\n');
             }
             return persons;
         }
