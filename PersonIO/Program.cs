@@ -27,7 +27,7 @@ namespace PersonIO
         {
             using (StreamWriter writer = new StreamWriter(path, true))
             {
-                writer.WriteLineAsync(person.Id.ToString() + "\n"
+                writer.WriteLine(person.Id.ToString() + "\n"
                     + person.Age.ToString() + "\n"
                     + person.LastName + "\n"
                     + person.FirstName);
