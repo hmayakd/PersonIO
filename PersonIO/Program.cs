@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace PersonIO
 {
@@ -24,32 +25,52 @@ namespace PersonIO
         }
         public void Create(Person person)
         {
-            string[] personstr = new string[4];
-            personstr[0] = person.Id.ToString();
-            personstr[1] = person.Age.ToString();
-            personstr[2] = person.LastName;
-            personstr[3] = person.FirstName;
-            File.AppendAllLines(path, personstr);
+            byte[][] personsByte = new byte[4][];
+            personsByte[0] = Encoding.Default.GetBytes(person.Id.ToString() + "\n");
+            personsByte[1] = Encoding.Default.GetBytes(person.Age.ToString() + "\n");
+            personsByte[2] = Encoding.Default.GetBytes(person.LastName + "\n");
+            personsByte[3] = Encoding.Default.GetBytes(person.FirstName + "\n");
+
+            using (FileStream fstream = new FileStream(path, FileMode.Append))
+            {
+                foreach (byte[] personByte in personsByte)
+                {
+                    fstream.Write(personByte, 0, personByte.Length);
+                }
+            }
         }
         public List<Person> ConvertToPerson(string[] persons)
         {
             List<Person> people = new List<Person>();
-            for (int i = 0; i < persons.Length / 4; i = i + 4)
+            for (int i = 0; i < persons.Length; i = i + 4)
             {
-                people.Add(new Person()
+                try
                 {
-                    Id = Guid.Parse(persons[i]),
-                    Age = Convert.ToInt16(persons[i + 1]),
-                    LastName = persons[i + 2],
-                    FirstName = persons[i + 3]
-                });
+                    people.Add(new Person()
+                    {
+                        Id = Guid.Parse(persons[i]),
+                        Age = Convert.ToInt16(persons[i + 1]),
+                        LastName = persons[i + 2],
+                        FirstName = persons[i + 3]
+                    });
+                }
+                catch
+                {
+
+                }
             }
             return people;
         }
         public string[] Read()
         {
             string[] persons;
-            persons = File.ReadAllLines(path);
+            using (FileStream fstream = File.OpenRead(path))
+            {
+                byte[] buffer = new byte[fstream.Length];
+                fstream.Read(buffer, 0, buffer.Length);
+                string textFromFile = Encoding.Default.GetString(buffer);
+                persons = textFromFile.Split('\n');
+            }
             return persons;
         }
         public void Print(List<Person> people)
