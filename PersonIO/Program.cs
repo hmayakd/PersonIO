@@ -25,18 +25,13 @@ namespace PersonIO
         }
         public void Create(Person person)
         {
-            byte[][] personsByte = new byte[4][];
-            personsByte[0] = Encoding.Default.GetBytes(person.Id.ToString() + "\n");
-            personsByte[1] = Encoding.Default.GetBytes(person.Age.ToString() + "\n");
-            personsByte[2] = Encoding.Default.GetBytes(person.LastName + "\n");
-            personsByte[3] = Encoding.Default.GetBytes(person.FirstName + "\n");
-
             using (FileStream fstream = new FileStream(path, FileMode.Append))
             {
-                foreach (byte[] personByte in personsByte)
-                {
-                    fstream.Write(personByte, 0, personByte.Length);
-                }
+                byte[] buffer = Encoding.Default.GetBytes(person.Id.ToString() + "\n"
+                    + person.Age.ToString() + "\n"
+                    + person.LastName + "\n"
+                    + person.FirstName + "\n");
+                fstream.Write(buffer, 0, buffer.Length);
             }
         }
         public List<Person> ConvertToPerson(string[] persons)
